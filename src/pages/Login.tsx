@@ -9,6 +9,7 @@ const ROLES: { id: S.Role; label: string; icon: string; desc: string }[] = [
   { id: "teacher", label: "Teacher", icon: "cap", desc: "Classes, marks, attendance" },
   { id: "student", label: "Student", icon: "book", desc: "Timetable, fees, results" },
   { id: "parent", label: "Parent", icon: "user", desc: "Children, dues, alerts" },
+  { id: "developer", label: "Software Owner", icon: "code", desc: "Developer panel access" },
 ];
 
 export default function Login() {
