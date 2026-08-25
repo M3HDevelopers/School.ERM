@@ -102,8 +102,30 @@ export function Badge({ tone = "neutral", children, dot }: { tone?: string; chil
   );
 }
 
-export function Card({ children, className = "", pad = true }: { children: React.ReactNode; className?: string; pad?: boolean }) {
-  return <div className={`rounded-lg border border-line bg-card shadow-[0_1px_2px_rgba(21,39,32,0.05)] ${pad ? "p-4" : ""} ${className}`}>{children}</div>;
+export function StatCard({ label, value, color = "blue" }: { label: string; value: string | number; color?: string }) {
+  const colors: Record<string, string> = {
+    blue: "bg-blue-50 text-blue-700 border-blue-200",
+    green: "bg-green-50 text-green-700 border-green-200",
+    yellow: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    red: "bg-red-50 text-red-700 border-red-200",
+    gray: "bg-gray-50 text-gray-700 border-gray-200",
+    orange: "bg-orange-50 text-orange-700 border-orange-200",
+  };
+  return (
+    <div className={`rounded-lg border p-4 ${colors[color] || colors.blue}`}>
+      <p className="text-xs font-medium opacity-80">{label}</p>
+      <p className="mt-1 text-2xl font-bold">{value}</p>
+    </div>
+  );
+}
+
+export function Card({ children, className = "", pad = true, title }: { children: React.ReactNode; className?: string; pad?: boolean; title?: string }) {
+  return (
+    <div className={`rounded-lg border border-line bg-card shadow-[0_1px_2px_rgba(21,39,32,0.05)] ${pad ? "p-4" : ""} ${className}`}>
+      {title && <h3 className="mb-3 font-display text-[16px] font-bold text-ink">{title}</h3>}
+      {children}
+    </div>
+  );
 }
 
 export function PageHead({ title, sub, children }: { title: string; sub?: string; children?: React.ReactNode }) {

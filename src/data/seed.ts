@@ -702,3 +702,598 @@ export const NOTICEBOARD = [
   { title: "Winter timing from 1 December", body: "School hours 8:30 am to 1:30 pm. Assembly at 8:15 am sharp.", date: dateISO(-9) },
   { title: "Naazra competition results", body: "Winners announced in morning assembly. Congratulations to House Iqbal.", date: dateISO(-14) },
 ];
+
+/* ============================================================
+   Developer Panel — Multi-Tenant SaaS Management Types
+   ============================================================ */
+
+export interface TenantPlan {
+  id: string;
+  name: string;
+  price: number;
+  billingInterval: "monthly" | "annual" | "lifetime";
+  currency: string;
+  modules: string[];
+  userLimit: number;
+  studentLimit: number;
+  campusLimit: number;
+  storageGB: number;
+  apiCallsPerMonth: number;
+  smsQuota: number;
+  emailQuota: number;
+  supportLevel: "basic" | "priority" | "dedicated";
+}
+
+export interface TenantOwner {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  designation: string;
+  verified: boolean;
+  lastLogin?: string;
+}
+
+export interface TenantLicense {
+  id: string;
+  type: "trial" | "monthly" | "annual" | "lifetime" | "custom";
+  status: "pending" | "active" | "grace" | "expired" | "suspended" | "revoked" | "cancelled";
+  startDate: string;
+  endDate: string;
+  graceEnd?: string;
+  planId: string;
+  modulesEnabled: string[];
+  customModules?: string[];
+  addons: string[];
+}
+
+export interface Tenant {
+  id: string;
+  code: string;
+  accountNo: string;
+  name: string;
+  institutionType: "school" | "college" | "academy" | "training";
+  country: string;
+  timezone: string;
+  currency: string;
+  status: "pending" | "active" | "trial" | "grace" | "suspended" | "expired" | "cancelled" | "archived";
+  createdAt: string;
+  activatedAt?: string;
+  owners: TenantOwner[];
+  license: TenantLicense;
+  usage: {
+    students: number;
+    users: number;
+    staff: number;
+    parents: number;
+    campuses: number;
+    storageUsedMB: number;
+    apiCallsThisMonth: number;
+    smsUsed: number;
+    emailUsed: number;
+    lastActive: string;
+  };
+  metadata: {
+    source: string;
+    accountManager?: string;
+    supportContact?: string;
+    tags: string[];
+    notes: string;
+    onboardingStatus: "not-started" | "in-progress" | "completed";
+  };
+  billing: {
+    invoices: Invoice[];
+    outstanding: number;
+    lastPaymentDate?: string;
+    nextRenewalDate?: string;
+  };
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNo: string;
+  tenantId: string;
+  period: string;
+  amount: number;
+  discount: number;
+  tax: number;
+  total: number;
+  status: "draft" | "sent" | "paid" | "overdue" | "cancelled";
+  dueDate: string;
+  paidDate?: string;
+  items: { label: string; amount: number }[];
+}
+
+export interface DeveloperAlert {
+  id: string;
+  type: "error" | "warning" | "info" | "security";
+  message: string;
+  ts: string;
+  tenantId?: string;
+  resolved: boolean;
+}
+
+export interface AuditLog {
+  id: string;
+  ts: string;
+  operator: string;
+  action: string;
+  targetTenant?: string;
+  targetOwner?: string;
+  module: string;
+  reason?: string;
+  outcome: "success" | "failed" | "partial";
+  details: Record<string, any>;
+}
+
+export interface SupportSession {
+  id: string;
+  tenantId: string;
+  operatorId: string;
+  operatorName: string;
+  reason: string;
+  startedAt: string;
+  endsAt: string;
+  endedAt?: string;
+  actions: string[];
+  status: "active" | "ended" | "expired";
+}
+
+export interface InternalRole {
+  id: string;
+  name: string;
+  permissions: string[];
+  require2FA: boolean;
+  moduleAccess: string[];
+  tenantRestrictions?: string[];
+}
+
+export interface InternalUser {
+  id: string;
+  name: string;
+  email: string;
+  roleId: string;
+  active: boolean;
+  lastLogin?: string;
+  sessions: string[];
+}
+
+export interface DeveloperData {
+  tenants: Tenant[];
+  plans: TenantPlan[];
+  alerts: DeveloperAlert[];
+  auditLogs: AuditLog[];
+  supportSessions: SupportSession[];
+  internalUsers: InternalUser[];
+  internalRoles: InternalRole[];
+  revenue: {
+    monthly: number;
+    annual: number;
+    lifetime: number;
+    byPlan: Record<string, number>;
+  };
+  renewalsDue: string[];
+  trials: {
+    total: number;
+    converted: number;
+    expired: number;
+    active: number;
+  };
+  moduleUsage: Record<string, number>;
+  announcements: { id: string; title: string; body: string; sentAt: string; recipients: number }[];
+}
+
+export const DEVELOPER_PLANS: TenantPlan[] = [
+  {
+    id: "plan-starter",
+    name: "Starter",
+    price: 4999,
+    billingInterval: "monthly",
+    currency: "PKR",
+    modules: ["students", "attendance", "fees", "exams", "reports"],
+    userLimit: 25,
+    studentLimit: 500,
+    campusLimit: 1,
+    storageGB: 10,
+    apiCallsPerMonth: 10000,
+    smsQuota: 500,
+    emailQuota: 1000,
+    supportLevel: "basic",
+  },
+  {
+    id: "plan-professional",
+    name: "Professional",
+    price: 9999,
+    billingInterval: "monthly",
+    currency: "PKR",
+    modules: ["students", "attendance", "fees", "exams", "reports", "admissions", "hr", "timetable", "homework", "library"],
+    userLimit: 100,
+    studentLimit: 2000,
+    campusLimit: 3,
+    storageGB: 50,
+    apiCallsPerMonth: 50000,
+    smsQuota: 2000,
+    emailQuota: 5000,
+    supportLevel: "priority",
+  },
+  {
+    id: "plan-enterprise",
+    name: "Enterprise",
+    price: 24999,
+    billingInterval: "monthly",
+    currency: "PKR",
+    modules: ["all"],
+    userLimit: -1,
+    studentLimit: -1,
+    campusLimit: -1,
+    storageGB: 200,
+    apiCallsPerMonth: -1,
+    smsQuota: 10000,
+    emailQuota: 20000,
+    supportLevel: "dedicated",
+  },
+  {
+    id: "plan-lifetime",
+    name: "Lifetime License",
+    price: 299999,
+    billingInterval: "lifetime",
+    currency: "PKR",
+    modules: ["all"],
+    userLimit: -1,
+    studentLimit: 5000,
+    campusLimit: 5,
+    storageGB: 100,
+    apiCallsPerMonth: 100000,
+    smsQuota: 5000,
+    emailQuota: 10000,
+    supportLevel: "priority",
+  },
+];
+
+export function seedDeveloperData(): DeveloperData {
+  const now = new Date();
+  const tenants: Tenant[] = [
+    {
+      id: "tn-001",
+      code: "DEA-001",
+      accountNo: "ACC-2024-001",
+      name: "Dar-e-Ilm Academy",
+      institutionType: "school",
+      country: "Pakistan",
+      timezone: "Asia/Karachi",
+      currency: "PKR",
+      status: "active",
+      createdAt: dateISO(-365),
+      activatedAt: dateISO(-360),
+      owners: [{
+        id: "ow-001",
+        name: "Dr. Ahmad Khan",
+        email: "ahmad@dareilm.edu.pk",
+        phone: "+92-300-1234567",
+        designation: "Principal",
+        verified: true,
+        lastLogin: dateISO(-1),
+      }],
+      license: {
+        id: "lic-001",
+        type: "annual",
+        status: "active",
+        startDate: dateISO(-360),
+        endDate: dateISO(5),
+        planId: "plan-professional",
+        modulesEnabled: ["students", "attendance", "fees", "exams", "reports", "admissions", "hr", "timetable", "homework"],
+        addons: ["sms-integration", "whatsapp-notifications"],
+      },
+      usage: {
+        students: 594,
+        users: 42,
+        staff: 38,
+        parents: 486,
+        campuses: 1,
+        storageUsedMB: 2450,
+        apiCallsThisMonth: 12500,
+        smsUsed: 1240,
+        emailUsed: 3200,
+        lastActive: new Date().toISOString(),
+      },
+      metadata: {
+        source: "referral",
+        accountManager: "Sales Team A",
+        tags: ["school", "k-12", "private"],
+        notes: "Pilot customer, very satisfied",
+        onboardingStatus: "completed",
+      },
+      billing: {
+        invoices: [],
+        outstanding: 0,
+        lastPaymentDate: dateISO(-30),
+        nextRenewalDate: dateISO(5),
+      },
+    },
+    {
+      id: "tn-002",
+      code: "KPS-002",
+      accountNo: "ACC-2024-002",
+      name: "Knowledge Point School",
+      institutionType: "school",
+      country: "Pakistan",
+      timezone: "Asia/Karachi",
+      currency: "PKR",
+      status: "trial",
+      createdAt: dateISO(-20),
+      owners: [{
+        id: "ow-002",
+        name: "Mrs. Fatima Ali",
+        email: "fatima@knowledgepoint.edu.pk",
+        phone: "+92-321-7654321",
+        designation: "Administrator",
+        verified: true,
+        lastLogin: dateISO(-1),
+      }],
+      license: {
+        id: "lic-002",
+        type: "trial",
+        status: "active",
+        startDate: dateISO(-20),
+        endDate: dateISO(10),
+        planId: "plan-starter",
+        modulesEnabled: ["students", "attendance", "fees", "exams"],
+        addons: [],
+      },
+      usage: {
+        students: 124,
+        users: 12,
+        staff: 10,
+        parents: 98,
+        campuses: 1,
+        storageUsedMB: 340,
+        apiCallsThisMonth: 2100,
+        smsUsed: 180,
+        emailUsed: 420,
+        lastActive: new Date().toISOString(),
+      },
+      metadata: {
+        source: "website",
+        tags: ["school", "trial"],
+        notes: "Interested in upgrading after trial",
+        onboardingStatus: "in-progress",
+      },
+      billing: { invoices: [], outstanding: 0 },
+    },
+    {
+      id: "tn-003",
+      code: "IAC-003",
+      accountNo: "ACC-2024-003",
+      name: "Intellectual Academy",
+      institutionType: "academy",
+      country: "Pakistan",
+      timezone: "Asia/Karachi",
+      currency: "PKR",
+      status: "expired",
+      createdAt: dateISO(-400),
+      activatedAt: dateISO(-395),
+      owners: [{
+        id: "ow-003",
+        name: "Mr. Hassan Raza",
+        email: "hassan@intellectual.edu.pk",
+        phone: "+92-333-9876543",
+        designation: "Director",
+        verified: true,
+        lastLogin: dateISO(-45),
+      }],
+      license: {
+        id: "lic-003",
+        type: "monthly",
+        status: "expired",
+        startDate: dateISO(-400),
+        endDate: dateISO(-30),
+        graceEnd: dateISO(-15),
+        planId: "plan-starter",
+        modulesEnabled: ["students", "attendance", "fees"],
+        addons: [],
+      },
+      usage: {
+        students: 89,
+        users: 8,
+        staff: 6,
+        parents: 72,
+        campuses: 1,
+        storageUsedMB: 180,
+        apiCallsThisMonth: 0,
+        smsUsed: 0,
+        emailUsed: 0,
+        lastActive: dateISO(-45),
+      },
+      metadata: {
+        source: "walk-in",
+        tags: ["academy", "churned"],
+        notes: "Budget constraints, may reactivate",
+        onboardingStatus: "completed",
+      },
+      billing: { invoices: [], outstanding: 4999 },
+    },
+    {
+      id: "tn-004",
+      code: "MCS-004",
+      accountNo: "ACC-2025-004",
+      name: "Modern College of Sciences",
+      institutionType: "college",
+      country: "Pakistan",
+      timezone: "Asia/Karachi",
+      currency: "PKR",
+      status: "active",
+      createdAt: dateISO(-90),
+      activatedAt: dateISO(-85),
+      owners: [{
+        id: "ow-004",
+        name: "Prof. Muhammad Aslam",
+        email: "aslam@moderncollege.edu.pk",
+        phone: "+92-300-5551234",
+        designation: "Principal",
+        verified: true,
+        lastLogin: dateISO(-1),
+      }],
+      license: {
+        id: "lic-004",
+        type: "annual",
+        status: "active",
+        startDate: dateISO(-85),
+        endDate: dateISO(280),
+        planId: "plan-enterprise",
+        modulesEnabled: ["all"],
+        addons: ["custom-domain", "white-label", "api-access"],
+      },
+      usage: {
+        students: 1240,
+        users: 86,
+        staff: 72,
+        parents: 980,
+        campuses: 2,
+        storageUsedMB: 8900,
+        apiCallsThisMonth: 45000,
+        smsUsed: 4200,
+        emailUsed: 8500,
+        lastActive: new Date().toISOString(),
+      },
+      metadata: {
+        source: "facebook",
+        accountManager: "Sales Team B",
+        tags: ["college", "enterprise", "multi-campus"],
+        notes: "Large institution, high engagement",
+        onboardingStatus: "completed",
+      },
+      billing: {
+        invoices: [],
+        outstanding: 0,
+        lastPaymentDate: dateISO(-85),
+        nextRenewalDate: dateISO(280),
+      },
+    },
+    {
+      id: "tn-005",
+      code: "SLS-005",
+      accountNo: "ACC-2025-005",
+      name: "Starlight School System",
+      institutionType: "school",
+      country: "Pakistan",
+      timezone: "Asia/Karachi",
+      currency: "PKR",
+      status: "suspended",
+      createdAt: dateISO(-180),
+      activatedAt: dateISO(-175),
+      owners: [{
+        id: "ow-005",
+        name: "Mr. Bilal Ahmed",
+        email: "bilal@starlight.edu.pk",
+        phone: "+92-345-1112233",
+        designation: "CEO",
+        verified: false,
+        lastLogin: dateISO(-60),
+      }],
+      license: {
+        id: "lic-005",
+        type: "monthly",
+        status: "suspended",
+        startDate: dateISO(-175),
+        endDate: dateISO(-45),
+        graceEnd: dateISO(-30),
+        planId: "plan-professional",
+        modulesEnabled: [],
+        addons: [],
+      },
+      usage: {
+        students: 312,
+        users: 24,
+        staff: 20,
+        parents: 256,
+        campuses: 1,
+        storageUsedMB: 890,
+        apiCallsThisMonth: 0,
+        smsUsed: 0,
+        emailUsed: 0,
+        lastActive: dateISO(-60),
+      },
+      metadata: {
+        source: "whatsapp",
+        tags: ["school", "suspended", "payment-issue"],
+        notes: "Suspended due to non-payment for 2 months",
+        onboardingStatus: "completed",
+      },
+      billing: { invoices: [], outstanding: 19998 },
+    },
+  ];
+
+  const alerts: DeveloperAlert[] = [
+    { id: "al-001", type: "warning", message: "Tenant tn-002 trial expires in 10 days", ts: new Date().toISOString().slice(0, 16), tenantId: "tn-002", resolved: false },
+    { id: "al-002", type: "error", message: "Tenant tn-003 payment overdue by 30 days", ts: new Date().toISOString().slice(0, 16), tenantId: "tn-003", resolved: false },
+    { id: "al-003", type: "security", message: "Multiple failed login attempts for owner ow-005", ts: new Date().toISOString().slice(0, 16), tenantId: "tn-005", resolved: false },
+    { id: "al-004", type: "info", message: "New tenant tn-006 onboarded successfully", ts: new Date().toISOString().slice(0, 16), tenantId: "tn-006", resolved: true },
+    { id: "al-005", type: "warning", message: "Storage limit approaching for tenant tn-004 (89% used)", ts: new Date().toISOString().slice(0, 16), tenantId: "tn-004", resolved: false },
+  ];
+
+  const auditLogs: AuditLog[] = [
+    { id: "au-001", ts: new Date().toISOString().slice(0, 16), operator: "admin@markaz.dev", action: "tenant.created", targetTenant: "tn-005", module: "tenants", outcome: "success", details: {} },
+    { id: "au-002", ts: new Date().toISOString().slice(0, 16), operator: "sales@markaz.dev", action: "license.trial_extended", targetTenant: "tn-002", module: "licenses", reason: "Customer requested extension", outcome: "success", details: { extendedDays: 7 } },
+    { id: "au-003", ts: new Date().toISOString().slice(0, 16), operator: "support@markaz.dev", action: "impersonation.started", targetTenant: "tn-001", module: "support", reason: "Customer reported issue with fee module", outcome: "success", details: { sessionId: "ss-001" } },
+    { id: "au-004", ts: new Date().toISOString().slice(0, 16), operator: "finance@markaz.dev", action: "invoice.generated", targetTenant: "tn-004", module: "billing", outcome: "success", details: { amount: 24999 } },
+    { id: "au-005", ts: new Date().toISOString().slice(0, 16), operator: "admin@markaz.dev", action: "tenant.suspended", targetTenant: "tn-005", module: "tenants", reason: "Non-payment for 60 days", outcome: "success", details: {} },
+  ];
+
+  return {
+    tenants,
+    plans: DEVELOPER_PLANS,
+    alerts,
+    auditLogs,
+    supportSessions: [],
+    internalUsers: [
+      { id: "iu-001", name: "Admin User", email: "admin@markaz.dev", roleId: "ir-001", active: true, lastLogin: new Date().toISOString() },
+      { id: "iu-002", name: "Sales Manager", email: "sales@markaz.dev", roleId: "ir-002", active: true, lastLogin: new Date().toISOString() },
+      { id: "iu-003", name: "Support Agent", email: "support@markaz.dev", roleId: "ir-003", active: true, lastLogin: new Date().toISOString() },
+      { id: "iu-004", name: "Finance Officer", email: "finance@markaz.dev", roleId: "ir-004", active: true, lastLogin: new Date().toISOString() },
+    ],
+    internalRoles: [
+      { id: "ir-001", name: "Super Owner", permissions: ["*"], require2FA: true, moduleAccess: ["all"] },
+      { id: "ir-002", name: "License Manager", permissions: ["tenants.read", "tenants.write", "licenses.*", "trials.*"], require2FA: true, moduleAccess: ["tenants", "licenses", "trials"] },
+      { id: "ir-003", name: "Support Operator", permissions: ["tenants.read", "support.impersonate", "audit.read"], require2FA: true, moduleAccess: ["support", "audit"] },
+      { id: "ir-004", name: "Finance Operator", permissions: ["billing.*", "invoices.*", "reports.billing"], require2FA: true, moduleAccess: ["billing", "invoices", "reports"] },
+    ],
+    revenue: {
+      monthly: 34998,
+      annual: 299988,
+      lifetime: 299999,
+      byPlan: {
+        "plan-starter": 4999,
+        "plan-professional": 19998,
+        "plan-enterprise": 24999,
+        "plan-lifetime": 299999,
+      },
+    },
+    renewalsDue: ["tn-001", "tn-004"],
+    trials: {
+      total: 24,
+      converted: 18,
+      expired: 4,
+      active: 2,
+    },
+    moduleUsage: {
+      students: 5,
+      attendance: 5,
+      fees: 5,
+      exams: 4,
+      reports: 4,
+      admissions: 3,
+      hr: 3,
+      timetable: 2,
+      homework: 2,
+      library: 1,
+      transport: 1,
+      "online-payments": 2,
+      "parent-portal": 3,
+      "teacher-portal": 3,
+    },
+    announcements: [
+      { id: "an-001", title: "System Maintenance Scheduled", body: "Scheduled maintenance on Sunday 2 AM - 4 AM PKT", sentAt: dateISO(-2), recipients: 5 },
+      { id: "an-002", title: "New Feature: WhatsApp Integration", body: "Now you can send notifications via WhatsApp", sentAt: dateISO(-7), recipients: 5 },
+    ],
+  };
+}
