@@ -16,6 +16,15 @@ import Comms from "./pages/Comms";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
 import DeveloperDashboard from "./pages/developer/Dashboard";
+import DeveloperTenants from "./pages/developer/Tenants";
+import DeveloperLicenses from "./pages/developer/Licenses";
+import DeveloperPlans from "./pages/developer/Plans";
+import DeveloperBilling from "./pages/developer/Billing";
+import DeveloperPayments from "./pages/developer/Payments";
+import DeveloperSupport from "./pages/developer/Support";
+import DeveloperImpersonation from "./pages/developer/Impersonation";
+import DeveloperAudit from "./pages/developer/Audit";
+import DeveloperSettings from "./pages/developer/Settings";
 
 function Screen() {
   const app = useApp();
@@ -38,6 +47,15 @@ function Screen() {
     reports: <Reports />,
     settings: <Settings />,
     "developer-dashboard": <DeveloperDashboard />,
+    "developer-tenants": <DeveloperTenants />,
+    "developer-licenses": <DeveloperLicenses />,
+    "developer-plans": <DeveloperPlans />,
+    "developer-billing": <DeveloperBilling />,
+    "developer-payments": <DeveloperPayments />,
+    "developer-support": <DeveloperSupport />,
+    "developer-impersonation": <DeveloperImpersonation />,
+    "developer-audit": <DeveloperAudit />,
+    "developer-settings": <DeveloperSettings />,
   };
 
   return <AppShell>{pages[p] ?? <Dashboard />}</AppShell>;
