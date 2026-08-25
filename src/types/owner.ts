@@ -4,24 +4,29 @@
  * Core Principle: Tenant Isolation & Privacy
  * The owner panel manages licenses, subscriptions, and metadata.
  * It does NOT expose student/teacher operational data by default.
+ * 
+ * IMPORTANT DATA BOUNDARY:
+ * - Student, parent, teacher records remain inside tenant environment
+ * - Developer panel manages: customer account, license, subscription, configuration, enabled modules, usage metrics
+ * - Support access must be explicit, permissioned, time-limited and fully audited
  */
 
 // ==========================================
-// 1. STATUS ENUMS & CONSTANTS
+// 1. STATUS ENUMS & CONSTANTS (Complete Status Model)
 // ==========================================
 
 export type TenantStatus = 
-  | 'pending' 
-  | 'trial' 
-  | 'trial_expiring' 
-  | 'active_paid' 
-  | 'grace' 
-  | 'suspended' 
-  | 'expired' 
-  | 'cancelled' 
-  | 'revoked' 
-  | 'archived' 
-  | 'deleted';
+  | 'pending'           // Tenant created but activation not completed
+  | 'trial'             // Free trial is active
+  | 'trial_expiring'    // Trial is near expiry (7 days threshold)
+  | 'active_paid'       // Paid license/subscription is active
+  | 'grace'             // Payment/license ended but temporary access remains
+  | 'suspended'         // Access blocked by owner action or policy
+  | 'expired'           // License or trial ended, access blocked
+  | 'cancelled'         // Commercial relationship cancelled
+  | 'revoked'           // License explicitly revoked, requires authorized reissue
+  | 'archived'          // Retained for historical records, not operational
+  | 'deleted';          // Completed approved data-deletion workflow
 
 export type LicenseType = 'trial' | 'monthly' | 'annual' | 'permanent' | 'custom';
 
@@ -34,21 +39,33 @@ export type SupportTicketPriority = 'low' | 'medium' | 'high' | 'critical';
 export type SupportTicketStatus = 'open' | 'in_progress' | 'waiting_customer' | 'resolved' | 'closed';
 
 export type InternalRoleType = 
-  | 'super_owner' 
-  | 'license_manager' 
-  | 'sales_manager' 
-  | 'support_operator' 
-  | 'finance_operator' 
-  | 'technical_operator' 
-  | 'auditor' 
-  | 'custom';
+  | 'super_owner'        // All controls
+  | 'license_manager'    // Trials, subscriptions, licenses
+  | 'sales_manager'      // Customer records, trials, onboarding
+  | 'support_operator'   // Support, diagnostics, impersonation
+  | 'finance_operator'   // Invoices, payments, refunds
+  | 'technical_operator' // Integrations, system health, API
+  | 'auditor'            // Read-only reports and audit logs
+  | 'custom';            // Selected permissions
 
 // ==========================================
-// 2. MODULES & ENTITLEMENTS
+// 2. MODULES & ENTITLEMENTS (Feature Control Layer)
 // ==========================================
+
+export type ModuleId = 
+  | 'students' | 'parents' | 'teachers' | 'staff'
+  | 'admissions' | 'attendance' | 'timetable' | 'homework' | 'assignments'
+  | 'exams' | 'results' | 'report_cards' | 'fees' | 'online_payments'
+  | 'payroll' | 'hr' | 'library' | 'transport' | 'inventory' | 'assets'
+  | 'hostel' | 'health' | 'discipline' | 'certificates' | 'documents'
+  | 'notifications' | 'sms' | 'email' | 'push' | 'whatsapp'
+  | 'reports' | 'custom_reports' | 'analytics' | 'public_website' | 'cms'
+  | 'student_portal' | 'parent_portal' | 'teacher_portal' | 'admin_portal'
+  | 'api_access' | 'custom_domain' | 'mobile_pwa' | 'multi_campus'
+  | 'advanced_analytics' | 'automation' | 'workflows' | 'support_helpdesk';
 
 export interface ModuleEntitlement {
-  moduleId: string;
+  moduleId: ModuleId;
   moduleName: string;
   enabled: boolean;
   permissions: {
@@ -65,6 +82,10 @@ export interface ModuleEntitlement {
   };
   campusRestrictions?: string[]; // Campus IDs where allowed
   roleRestrictions?: string[];   // Roles that can access
+  entitlementSource: 'plan' | 'custom_package' | 'trial' | 'manual_override';
+  overrideStart?: string; // ISO date for temporary overrides
+  overrideEnd?: string;
+  overrideReason?: string;
 }
 
 export interface FeatureFlags {
@@ -82,6 +103,10 @@ export interface FeatureFlags {
   onlinePayments: boolean;
   biometricIntegration: boolean;
   gpsTransport: boolean;
+  studentPortal: boolean;
+  parentPortal: boolean;
+  teacherPortal: boolean;
+  publicWebsiteCMS: boolean;
 }
 
 // ==========================================
@@ -100,6 +125,11 @@ export interface TenantLimits {
   emailQuota: number;
   whatsappQuota: number;
   customIntegrations: number;
+  maxClasses?: number;
+  maxSections?: number;
+  documentCount?: number;
+  reportGenerations?: number;
+  paymentTransactions?: number;
 }
 
 export interface UsageMetrics {
@@ -114,8 +144,17 @@ export interface UsageMetrics {
   emailUsed: number;
   whatsappUsed: number;
   documentCount: number;
-  lastActiveDate: string; // ISO date
+  lastActiveDate: string;
   peakUsageDate?: string;
+  peakUsageValue?: number;
+  limitReachedWarnings: string[];
+  usagePercentage: {
+    students: number;
+    users: number;
+    storage: number;
+    api: number;
+    sms: number;
+  };
 }
 
 // ==========================================
@@ -129,27 +168,41 @@ export interface CustomerOwner {
   businessEmail: string;
   businessPhone: string;
   institutionContactDetails: string;
-  cnicOrIdentity?: string; // Masked by default
+  cnicOrIdentity?: string; // Masked by default, only when legally required
   identityVerified: boolean;
   designation: string;
+  ownershipAuthorizationNotes?: string;
   secondaryContact?: {
     name: string;
     phone: string;
     email?: string;
+    authorizationLevel: 'full' | 'limited';
   };
   emergencyContact?: {
     name: string;
     phone: string;
+    relation: string;
   };
-  authorizationDocuments?: string[]; // URLs to docs
+  authorizationDocuments?: string[]; // URLs to uploaded docs
   username: string;
   forcePasswordChange: boolean;
   lastLoginAt?: string;
   lastPasswordChangeAt?: string;
   twoFactorEnabled: boolean;
+  backupAuthMethod?: string;
   accountDisabled: boolean;
+  loginLocked: boolean;
+  failedLoginAttempts: number;
+  lockedUntil?: string;
   createdAt: string;
   updatedAt: string;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
+  accountHistory: {
+    action: string;
+    timestamp: string;
+    actor: string;
+    details?: string;
+  }[];
 }
 
 export interface Tenant {
@@ -169,28 +222,37 @@ export interface Tenant {
   // Commercial Metadata
   customerManagerId?: string;
   supportContactId?: string;
-  sourceChannel?: string; // Website, Referral, Direct, etc.
+  sourceChannel: 'website' | 'referral' | 'direct_sales' | 'partner' | 'facebook' | 'whatsapp' | 'walk_in';
   commercialTags: string[];
-  segmentation?: string;
+  segmentation: 'SMB' | 'Enterprise' | 'Institution' | 'Individual';
   
   // Onboarding & Contract
   onboardingStatus: 'not_started' | 'in_progress' | 'completed' | 'blocked';
   deploymentStatus: 'pending' | 'deployed' | 'migrated' | 'archived';
   contractStatus: 'draft' | 'signed' | 'expired' | 'terminated';
   
-  // Notes (Internal)
+  // Notes (Internal - Not visible to customer)
   internalNotes?: string;
   salesNotes?: string;
+  supportNotes?: string;
   
   // Timestamps
   createdAt: string;
   activatedAt?: string;
   trialStartedAt?: string;
   trialEndsAt?: string;
+  trialPausedAt?: string;
+  trialPauseReason?: string;
   subscriptionStartsAt?: string;
   subscriptionEndsAt?: string;
+  gracePeriodStartsAt?: string;
+  gracePeriodEndsAt?: string;
   lastBillingDate?: string;
   nextBillingDate?: string;
+  suspendedAt?: string;
+  suspendedReason?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
   archivedAt?: string;
   deletedAt?: string;
   
@@ -200,7 +262,7 @@ export interface Tenant {
   currentSubscriptionId?: string;
   currentPlanId: string;
   
-  // Aggregated Usage (No student details)
+  // Aggregated Usage (No student details - privacy boundary)
   usage: UsageMetrics;
   limits: TenantLimits;
   
@@ -209,9 +271,23 @@ export interface Tenant {
     lastBackupSuccess?: string;
     lastBackupFailed?: string;
     lastIntegrationSync?: string;
+    lastAPIError?: string;
+    lastPaymentAttempt?: string;
+    lastPaymentStatus?: string;
     hasCriticalErrors: boolean;
     inactiveDays: number;
+    onboardingCompletionPercent: number;
+    supportTicketHealth: 'good' | 'warning' | 'critical';
   };
+  
+  // Environment & Deployment
+  subdomain?: string;
+  customDomain?: string;
+  domainVerified: boolean;
+  sslStatus: 'pending' | 'active' | 'expired';
+  deploymentEnvironment: 'production' | 'staging' | 'development';
+  versionBuild?: string;
+  maintenanceMode: boolean;
 }
 
 // ==========================================

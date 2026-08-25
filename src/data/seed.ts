@@ -727,66 +727,263 @@ export interface TenantPlan {
 
 export interface TenantOwner {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
+  tenantId: string;
+  fullName: string;
+  businessEmail: string;
+  businessPhone: string;
+  institutionContactDetails: string;
+  cnicOrIdentity?: string; // Masked by default
+  identityVerified: boolean;
   designation: string;
-  verified: boolean;
+  ownershipAuthorizationNotes?: string;
+  secondaryContact?: {
+    name: string;
+    phone: string;
+    email?: string;
+    authorizationLevel: 'full' | 'limited';
+  };
+  emergencyContact?: {
+    name: string;
+    phone: string;
+    relation: string;
+  };
+  authorizationDocuments?: string[];
+  username: string;
+  forcePasswordChange: boolean;
   lastLogin?: string;
+  lastPasswordChange?: string;
+  twoFactorEnabled: boolean;
+  backupAuthMethod?: string;
+  accountDisabled: boolean;
+  loginLocked: boolean;
+  failedLoginAttempts: number;
+  lockedUntil?: string;
+  createdAt: string;
+  updatedAt: string;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
+  accountHistory: {
+    action: string;
+    timestamp: string;
+    actor: string;
+    details?: string;
+  }[];
+}
+
+export interface ModuleEntitlement {
+  moduleId: string;
+  moduleName: string;
+  enabled: boolean;
+  permissions: {
+    read: boolean;
+    create: boolean;
+    edit: boolean;
+    delete: boolean;
+    export: boolean;
+    print: boolean;
+    import: boolean;
+    bulkAction: boolean;
+    approval: boolean;
+    financialApproval: boolean;
+  };
+  campusRestrictions?: string[];
+  roleRestrictions?: string[];
+  entitlementSource: 'plan' | 'custom_package' | 'trial' | 'manual_override';
+  overrideStart?: string;
+  overrideEnd?: string;
+  overrideReason?: string;
+}
+
+export interface FeatureFlags {
+  customDomain: boolean;
+  whiteLabel: boolean;
+  apiAccess: boolean;
+  mobilePWA: boolean;
+  multiCampus: boolean;
+  advancedAnalytics: boolean;
+  automationWorkflows: boolean;
+  smsIntegration: boolean;
+  whatsappIntegration: boolean;
+  emailIntegration: boolean;
+  pushNotifications: boolean;
+  onlinePayments: boolean;
+  biometricIntegration: boolean;
+  gpsTransport: boolean;
+  studentPortal: boolean;
+  parentPortal: boolean;
+  teacherPortal: boolean;
+  publicWebsiteCMS: boolean;
+}
+
+export interface TenantLimits {
+  maxCampuses: number;
+  maxUsers: number;
+  maxStudents: number;
+  maxStaff: number;
+  maxParents: number;
+  storageGB: number;
+  apiCallsPerMonth: number;
+  smsQuota: number;
+  emailQuota: number;
+  whatsappQuota: number;
+  customIntegrations: number;
+  maxClasses?: number;
+  maxSections?: number;
+  documentCount?: number;
+  reportGenerations?: number;
+  paymentTransactions?: number;
 }
 
 export interface TenantLicense {
   id: string;
+  licenseKey?: string;
+  tenantId: string;
   type: "trial" | "monthly" | "annual" | "lifetime" | "custom";
   status: "pending" | "active" | "grace" | "expired" | "suspended" | "revoked" | "cancelled";
-  startDate: string;
-  endDate: string;
-  graceEnd?: string;
+  activationDate: string;
+  expiryDate?: string;
+  renewalDate?: string;
+  gracePeriodEndsAt?: string;
   planId: string;
-  modulesEnabled: string[];
-  customModules?: string[];
-  addons: string[];
+  planSnapshot?: any; // Snapshot of plan at issue time
+  limits: TenantLimits;
+  modules: ModuleEntitlement[];
+  featureFlags: FeatureFlags;
+  suspendedAt?: string;
+  suspendedReason?: string;
+  revokedAt?: string;
+  revokedReason?: string;
+  transferredFromTenantId?: string;
+  transferReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TenantHealthStatus {
+  lastBackupSuccess?: string;
+  lastBackupFailed?: string;
+  lastIntegrationSync?: string;
+  lastAPIError?: string;
+  lastPaymentAttempt?: string;
+  lastPaymentStatus?: string;
+  hasCriticalErrors: boolean;
+  inactiveDays: number;
+  onboardingCompletionPercent: number;
+  supportTicketHealth: 'good' | 'warning' | 'critical';
+}
+
+export interface UsageMetrics {
+  currentCampuses: number;
+  activeUsers: number;
+  totalStudents: number;
+  totalStaff: number;
+  totalParents: number;
+  storageUsedGB: number;
+  apiCallsThisMonth: number;
+  smsUsed: number;
+  emailUsed: number;
+  whatsappUsed: number;
+  documentCount: number;
+  lastActiveDate: string;
+  peakUsageDate?: string;
+  peakUsageValue?: number;
+  limitReachedWarnings: string[];
+  usagePercentage: {
+    students: number;
+    users: number;
+    storage: number;
+    api: number;
+    sms: number;
+  };
 }
 
 export interface Tenant {
   id: string;
-  code: string;
-  accountNo: string;
-  name: string;
-  institutionType: "school" | "college" | "academy" | "training";
+  tenantCode: string;
+  accountNumber: string;
+  institutionName: string;
+  institutionType: "school" | "college" | "academy" | "training_institute" | "university";
+  status: "pending" | "trial" | "trial_expiring" | "active_paid" | "grace" | "suspended" | "expired" | "cancelled" | "revoked" | "archived" | "deleted";
+  
+  // Configuration
   country: string;
   timezone: string;
   currency: string;
-  status: "pending" | "active" | "trial" | "grace" | "suspended" | "expired" | "cancelled" | "archived";
+  allowedCampuses: number;
+  
+  // Commercial Metadata
+  customerManagerId?: string;
+  supportContactId?: string;
+  sourceChannel: "website" | "referral" | "direct_sales" | "partner" | "facebook" | "whatsapp" | "walk_in";
+  commercialTags: string[];
+  segmentation: "SMB" | "Enterprise" | "Institution" | "Individual";
+  
+  // Onboarding & Contract
+  onboardingStatus: "not_started" | "in_progress" | "completed" | "blocked";
+  deploymentStatus: "pending" | "deployed" | "migrated" | "archived";
+  contractStatus: "draft" | "signed" | "expired" | "terminated";
+  
+  // Notes (Internal - Not visible to customer)
+  internalNotes?: string;
+  salesNotes?: string;
+  supportNotes?: string;
+  
+  // Timestamps
   createdAt: string;
   activatedAt?: string;
+  trialStartedAt?: string;
+  trialEndsAt?: string;
+  trialPausedAt?: string;
+  trialPauseReason?: string;
+  subscriptionStartsAt?: string;
+  subscriptionEndsAt?: string;
+  gracePeriodStartsAt?: string;
+  gracePeriodEndsAt?: string;
+  lastBillingDate?: string;
+  nextBillingDate?: string;
+  suspendedAt?: string;
+  suspendedReason?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
+  archivedAt?: string;
+  deletedAt?: string;
+  
+  // Relations
   owners: TenantOwner[];
-  license: TenantLicense;
-  usage: {
-    students: number;
-    users: number;
-    staff: number;
-    parents: number;
-    campuses: number;
-    storageUsedMB: number;
-    apiCallsThisMonth: number;
-    smsUsed: number;
-    emailUsed: number;
-    lastActive: string;
+  currentLicenseId: string;
+  currentSubscriptionId?: string;
+  currentPlanId: string;
+  
+  // Aggregated Usage (No student details - privacy boundary)
+  usage: UsageMetrics;
+  limits: TenantLimits;
+  
+  // Health Status
+  healthStatus: TenantHealthStatus;
+  
+  // Environment & Deployment
+  subdomain?: string;
+  customDomain?: string;
+  domainVerified: boolean;
+  sslStatus: "pending" | "active" | "expired";
+  deploymentEnvironment: "production" | "staging" | "development";
+  versionBuild?: string;
+  maintenanceMode: boolean;
+  
+  // License reference (deprecated - use currentLicenseId)
+  license?: TenantLicense;
+  billing?: {
+    invoices: Invoice[];
+    outstanding: number;
+    lastPaymentDate?: string;
+    nextRenewalDate?: string;
   };
-  metadata: {
+  metadata?: {
     source: string;
     accountManager?: string;
     supportContact?: string;
     tags: string[];
     notes: string;
     onboardingStatus: "not-started" | "in-progress" | "completed";
-  };
-  billing: {
-    invoices: Invoice[];
-    outstanding: number;
-    lastPaymentDate?: string;
-    nextRenewalDate?: string;
   };
 }
 
