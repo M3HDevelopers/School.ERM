@@ -42,6 +42,7 @@ export interface AppState {
   marks: Record<string, Record<string, Record<string, number | "AB">>>;
   school: S.SchoolCfg;
   toasts: Toast[];
+  developer: S.DeveloperData;
 }
 
 function fresh(): AppState {
@@ -70,13 +71,14 @@ function fresh(): AppState {
     marks: { "ex-mid|g8A": S.midtermMarks(students) },
     school: { ...S.DEFAULT_SCHOOL },
     toasts: [],
+    developer: S.seedDeveloperData(),
   };
 }
 
 const PERSIST: (keyof AppState)[] = [
   "students", "staff", "vouchers", "payments", "announcements", "leads", "books", "routes",
   "items", "events", "payrollRuns", "audit", "notis", "leaves", "homework", "attendance",
-  "marks", "school", "session",
+  "marks", "school", "session", "developer",
 ];
 
 function init(): AppState {
