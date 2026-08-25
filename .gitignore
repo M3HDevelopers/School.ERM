@@ -1,75 +1,53 @@
-```gitignore
-# Dependencies
-node_modules/
-
-# Build outputs
-dist/
-build/
-*.js.map
+```
+# Logs and temp files
+*.log
 
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
-# Editors
-.vscode/
-.idea/
-
-# Logs
-*.log
-
-# Python
+# Dependencies
+node_modules/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
 *.so
-.coverage
-htmlcov/
-.coverage.*
-.python-version
+*.egg-info/
+.eggs/
 
-# Temporary files
-*.tmp
-*.temp
-*~
-.DS_Store
-Thumbs.db
-
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
-
-# Distribution / packaging
-.Python
+# Build artifacts
+dist/
+build/
+*.out
+*.exe
+*.dll
 *.so
-.libs/
-.pyx
-*.pyx
-*.pxd
-*.pxi
-*.pxd.in
-*.pxi.in
-*.pyde
+*.a
+*.obj
 
-# Documentation builds
-docs/_build/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Local configuration
-.vagrant/
-Vagrantfile
-
-# IDE specific
+# Editors
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Python specific
+*.pyc
+__pycache__/
+.pytest_cache/
+.mypy_cache/
 
 # Compressed files
 *.zip
