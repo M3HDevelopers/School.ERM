@@ -32,6 +32,13 @@ const NAV: Record<S.Role, { group: string; items: NavItem[] }[]> = {
     { group: "Family", items: [{ id: "dashboard", label: "Parent Dashboard", icon: "grid" }, { id: "fees", label: "Fees & Receipts", icon: "cash" }, { id: "attendance", label: "Attendance", icon: "check" }, { id: "exams", label: "Results", icon: "doc" }] },
     { group: "School", items: [{ id: "comms", label: "Announcements", icon: "send" }] },
   ],
+  developer: [
+    { group: "Overview", items: [{ id: "developer-dashboard", label: "Developer Dashboard", icon: "grid" }] },
+    { group: "Management", items: [{ id: "developer-tenants", label: "Tenants", icon: "building" }, { id: "developer-licenses", label: "Licenses", icon: "key" }, { id: "developer-plans", label: "Plans", icon: "package" }] },
+    { group: "Billing", items: [{ id: "developer-billing", label: "Invoices", icon: "receipt" }, { id: "developer-payments", label: "Payments", icon: "cash" }] },
+    { group: "Support", items: [{ id: "developer-support", label: "Tickets", icon: "help" }, { id: "developer-impersonation", label: "Impersonate", icon: "user" }] },
+    { group: "System", items: [{ id: "developer-audit", label: "Audit Logs", icon: "shield" }, { id: "developer-settings", label: "Settings", icon: "gear" }] },
+  ],
 };
 const LABELS: Record<string, string> = {
   dashboard: "Dashboard", students: "Students", admissions: "Admissions", attendance: "Attendance",
