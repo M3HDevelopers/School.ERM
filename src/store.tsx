@@ -5,7 +5,7 @@ import { seedDB, SCHOOL, THEMES, PLANS, MODULE_REGISTRY, dayKey, monthKey } from
 
 const LS_KEY = "markaz-erp-v3";
 
-export interface Session { userId: string; role: Role; name: string; tenantId: string; }
+export interface Session { userId: string; role: Role; name: string; tenantId: string; operatorRole?: string; }
 interface Toast { id: number; msg: string; kind: "ok" | "info" | "warn" | "danger"; }
 interface NavState { id: NavId; params?: Record<string, string>; }
 
@@ -13,7 +13,7 @@ interface AppCtx {
   db: DB;
   set: (fn: (d: DB) => DB) => void;
   session: Session | null;
-  login: (role: Role) => void;
+  login: (role: Role, asName?: string, opRole?: string) => void;
   logout: () => void;
   nav: NavState;
   go: (id: NavId, params?: Record<string, string>) => void;
@@ -267,11 +267,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return t.modules.includes(key);
   };
 
-  const login = (role: Role) => {
-    const person = role === "admin" ? "Ch. Muhammad Owais" : role === "teacher" ? "Sara Malik" : role === "student" ? "Ahmed Khan" : role === "parent" ? "Salman Khan" : "Hassan Raza";
-    setSession({ userId: role, role, name: person, tenantId: role === "owner" ? "platform" : "t-dia" });
-    setNav({ id: role === "owner" ? "ownerDash" : "dashboard" });
-    toast(`Signed in as ${person} — ${role === "owner" ? "Software Owner (control plane)" : role} view`, "info");
+  const login = (role: Role, asName?: string, opRole?: string) => {
+    const person = asName ?? (role === "owner" ? "Hassan Raza" : "Operator");
+    setSession({ userId: role, role, name: person, tenantId: "platform", operatorRole: opRole });
+    setNav({ id: "ownerDash" });
+    set((d) => ({ ...d, ownerAudit: [{ id: `oa-login-${Date.now()}`, time: new Date().toISOString(), operator: person, action: "Operator signed in", target: opRole ?? role, reason: "Console login · 2FA verified", outcome: "success", risk: "normal" }, ...d.ownerAudit] }));
+    toast(`Signed in — ${person} · ${opRole ?? "Operator"}`, "info");
   };
 
   const logout = () => { setSession(null); setNav({ id: "login" }); };

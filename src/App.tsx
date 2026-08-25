@@ -1,20 +1,8 @@
+import type { ReactNode } from "react";
 import { AppProvider, useApp } from "./store";
 import { Shell } from "./components/shell";
 import { I } from "./components/ui";
 import Login from "./pages/Login";
-import PublicSite from "./pages/PublicSite";
-import Dashboard from "./pages/Dashboard";
-import Students from "./pages/Students";
-import Attendance from "./pages/Attendance";
-import Fees from "./pages/Fees";
-import Exams from "./pages/Exams";
-import Academics from "./pages/Academics";
-import Admissions from "./pages/Admissions";
-import HR from "./pages/HR";
-import Operations from "./pages/Operations";
-import Comms from "./pages/Comms";
-import Settings from "./pages/Settings";
-import Reports from "./pages/Reports";
 import { OwnerDashboard, TenantsPage } from "./pages/OwnerPanel";
 import { LicensesPage, BillingPage, SystemPage, SecurityPage, SupportPage } from "./pages/OwnerOps";
 
@@ -45,21 +33,8 @@ function Toasts() {
 function Router() {
   const app = useApp();
   const id = app.nav.id;
-  const pages: Record<string, React.ReactNode> = {
-    login: <Login />,
-    website: <PublicSite />,
-    dashboard: <Dashboard />,
-    students: <Students />,
-    attendance: <Attendance />,
-    fees: <Fees />,
-    exams: <Exams />,
-    academics: <Academics />,
-    admissions: <Admissions />,
-    hr: <HR />,
-    ops: <Operations />,
-    comms: <Comms />,
-    settings: <Settings />,
-    reports: <Reports />,
+  if (!app.session || id === "login") return <><Login /><Toasts /></>;
+  const pages: Record<string, ReactNode> = {
     ownerDash: <OwnerDashboard />,
     tenants: <TenantsPage />,
     licenses: <LicensesPage />,
@@ -68,12 +43,11 @@ function Router() {
     security: <SecurityPage />,
     support: <SupportPage />,
   };
-  const page = pages[id] ?? <Login />;
-  const bare = id === "login" || id === "website";
+  const page = pages[id] ?? <OwnerDashboard />;
   const paramKey = JSON.stringify(app.nav.params ?? {});
   return (
     <>
-      {bare ? page : <Shell key={`${id}-${paramKey}`}>{page}</Shell>}
+      <Shell key={`${id}-${paramKey}`}>{page}</Shell>
       <Toasts />
     </>
   );

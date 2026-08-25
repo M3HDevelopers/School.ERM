@@ -29,6 +29,14 @@ export const StatusBadge = ({ t }: { t: OwnerTenant }) => {
 // ================= CONTROL ROOM DASHBOARD =================
 export function OwnerDashboard() {
   const app = useApp();
+  const [tick, setTick] = useState(0);
+  useEffect(() => { const iv = setInterval(() => setTick((t) => t + 1), 1000); return () => clearInterval(iv); }, []);
+  const uptime = useMemo(() => {
+    const base = 14 * 86400 + 6 * 3600 + (tick % 86400);
+    return `${Math.floor(base / 86400)}d ${String(Math.floor((base % 86400) / 3600)).padStart(2, "0")}:${String(Math.floor((base % 3600) / 60)).padStart(2, "0")}:${String(base % 60).padStart(2, "0")}`;
+  }, [tick]);
+  const [feedHi, setFeedHi] = useState(0);
+  useEffect(() => { const iv = setInterval(() => setFeedHi((x) => x + 1), 2400); return () => clearInterval(iv); }, []);
   const tenants = app.db.ownerTenants;
   const activePaid = tenants.filter((t) => t.status === "active_paid");
   const trials = tenants.filter((t) => t.status === "trial");
@@ -42,29 +50,54 @@ export function OwnerDashboard() {
     return counts;
   }, [tenants]);
 
+  const feed = useMemo(() => [
+    ...app.db.ownerAudit.slice(0, 4).map((a) => ({ id: a.id, text: `${a.action} — ${a.target}`, time: timeAgo(a.time), src: a.operator, dot: a.risk === "elevated" ? "var(--color-danger)" : "var(--color-primary)" })),
+    { id: "fx1", text: "Webhook delivered — payment.confirmed → Ilm-o-Hikmah", time: "4m ago", src: "workflow-engine", dot: "var(--color-ok)" },
+    { id: "fx2", text: "Trial reminder queued — Hira Grammar (T-5d)", time: "11m ago", src: "scheduler", dot: "var(--color-accent)" },
+    { id: "fx3", text: "Nightly backup verified — 8 tenants · 14.6 GB", time: "2h ago", src: "backupd", dot: "var(--color-ok)" },
+  ], [app.db.ownerAudit]);
+
+  const liveSessions = app.db.supportSessions.filter((s) => s.active).length;
+  const queueDepth = 3 + (tick % 7);
+  const p95 = 198 + ((tick * 13) % 41);
+
   return (
     <>
-      <PageHead title="Control Room" sub="Commercial control plane for Markaz Cloud — every school you sell to, one screen"
-        actions={<>
-          <Btn v="outline" sz="sm" icon="history" onClick={() => app.go("security")}>Audit log</Btn>
-          <Btn sz="sm" icon="plus" onClick={() => app.go("tenants", { new: "1" })}>Add school / institute</Btn>
-        </>} />
-
-      {/* data boundary banner */}
-      <div className="anim-up mb-4 flex items-start gap-3 rounded-xl border border-primary/25 bg-primarysoft/70 p-3.5">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white"><I n="shield" size={17} /></span>
-        <div className="text-[12px] leading-relaxed text-primarydark">
-          <b>Data boundary in force:</b> this panel manages <b>tenant accounts, licenses, billing and aggregated usage only</b>. Student, parent,
-          teacher, marks and fee records stay inside each school's tenant environment and are never listed here. Support access to tenant data
-          requires an explicit, reason-logged, time-limited session (see Support Desk).
+      {/* command strip — live platform pulse */}
+      <div className="anim-up relative mb-5 overflow-hidden rounded-2xl border border-night2 bg-night px-5 py-5 text-canvas">
+        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(640px 200px at 12% 0%, rgba(201,154,46,0.16), transparent 62%), radial-gradient(540px 190px at 90% 130%, rgba(12,107,88,0.42), transparent 62%)" }} />
+        <div className="relative flex flex-wrap items-end gap-x-10 gap-y-4">
+          <div className="min-w-[250px]">
+            <p className="text-[9.5px] font-bold uppercase tracking-[0.22em] text-accent">Commercial command center</p>
+            <h2 className="display mt-1 text-[27px] font-bold leading-tight text-white">Control Room</h2>
+            <p className="mt-1 max-w-sm text-[11.5px] leading-relaxed text-canvas/55">
+              Tenant accounts, licenses, billing &amp; aggregated usage only — school operational records never appear here.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-7 gap-y-2 pb-0.5">
+            <span className="flex items-center gap-2 text-[11.5px]"><span className="dot-live h-2 w-2 rounded-full bg-ok" /><b className="text-white">All core systems operational</b></span>
+            <span className="text-[11px] text-canvas/55">uptime <b className="num text-white">{uptime}</b></span>
+            <span className="text-[11px] text-canvas/55">queue <b className="num text-accent">{queueDepth}</b> jobs</span>
+            <span className="text-[11px] text-canvas/55">API p95 <b className="num text-white">{p95}ms</b></span>
+            <span className="text-[11px] text-canvas/55">support sessions <b className={`num ${liveSessions ? "text-danger" : "text-white"}`}>{liveSessions}</b></span>
+          </div>
+          <div className="ml-auto flex gap-2 pb-0.5">
+            <button onClick={() => app.go("security")} className="focus-ring flex items-center gap-1.5 rounded-lg border border-white/15 px-3 py-2 text-[12px] font-bold text-canvas/85 transition hover:border-accent/50 hover:text-white">
+              <I n="history" size={14} /> Audit log
+            </button>
+            <button onClick={() => app.go("tenants", { new: "1" })} className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-2 text-[12px] font-bold text-night shadow-lg shadow-accent/25 transition hover:brightness-105 active:scale-[0.98]">
+              <I n="plus" size={14} /> Add school / institute
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="anim-up grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        <Kpi label="Schools onboarded" value={tenants.length} spark={[4, 5, 5, 6, 7, 7, 8, tenants.length]} sub={`${tenants.filter((t) => t.createdAt >= dayKey(-30)).length} new this month`} onClick={() => app.go("tenants")} />
-        <Kpi label="Active paid" value={activePaid.length} tone="var(--color-ok)" sub={`incl. ${activePaid.filter((t) => t.planId === "permanent").length} permanent license`} onClick={() => app.go("tenants", { f: "active_paid" })} />
+        <div className="sm:col-span-2">
+          <Kpi label="Monthly recurring revenue" value={mrr} prefix="Rs " tone="var(--color-primary)" spark={[18, 22, 24, 27, 27, 31, 33, Math.round(mrr / 1000)]} sub={<span><b className="text-ok">+12.4%</b> vs last month · {activePaid.length} paying tenants</span>} onClick={() => app.go("billing")} />
+        </div>
+        <Kpi label="Schools onboarded" value={tenants.length} spark={[4, 5, 5, 6, 7, 7, 8, tenants.length]} sub={`${activePaid.length} active paid · ${tenants.filter((t) => t.createdAt >= dayKey(-30)).length} new this month`} onClick={() => app.go("tenants")} />
         <Kpi label="Trials running" value={trials.length} tone="var(--color-warn)" sub={<span className="font-bold text-warn">{expiring.length} expiring ≤ 7 days</span>} onClick={() => app.go("licenses")} />
-        <Kpi label="Monthly revenue" value={mrr} prefix="Rs " spark={[18, 22, 24, 27, 27, 31, 33, Math.round(mrr / 1000)]} sub="+ add-ons & SMS packs" onClick={() => app.go("billing")} />
         <Kpi label="Renewals due ≤ 45d" value={renewals.length} sub={renewals[0] ? `${renewals[0].shortName} · ${renewals[0].license.expiresOn ? fmtDate(renewals[0].license.expiresOn) : ""}` : "—"} onClick={() => app.go("licenses")} />
         <Kpi label="At-risk accounts" value={atRisk.length} tone="var(--color-danger)" sub="grace · suspended · expired" onClick={() => app.go("tenants", { f: "risk" })} />
       </div>
@@ -149,15 +182,20 @@ export function OwnerDashboard() {
             <p className="mt-2 text-[10.5px] text-sub">{app.db.jobs.filter((j) => j.status === "failed").length} failed background jobs awaiting retry</p>
           </Card>
 
-          <Card title="Recent owner activity" sub="Privileged actions — immutable">
-            <div className="space-y-1.5">
-              {app.db.ownerAudit.slice(0, 5).map((a) => (
-                <div key={a.id} className="flex items-start gap-2 text-[11.5px]">
-                  <I n={a.risk === "elevated" ? "shield" : "history"} size={12} className={`mt-0.5 shrink-0 ${a.risk === "elevated" ? "text-danger" : "text-sub"}`} />
-                  <p className="leading-snug text-sub"><b className="text-ink">{a.action}</b> · {a.target} <span className="text-sub/70">— {timeAgo(a.time)}</span></p>
+          <Card title="Live operations feed" sub="Streaming · commercial events only"
+            actions={<span className="flex items-center gap-1.5 text-[9.5px] font-bold uppercase tracking-widest text-ok"><span className="dot-live h-1.5 w-1.5 rounded-full bg-ok" /> live</span>}>
+            <div className="space-y-1">
+              {feed.map((f, i) => (
+                <div key={f.id} className={`flex items-start gap-2.5 rounded-lg px-2 py-1.5 transition-all duration-700 ${i === feedHi % feed.length ? "bg-primarysoft/80 shadow-sm" : ""}`}>
+                  <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: f.dot }} />
+                  <div className="min-w-0">
+                    <p className="text-[11.5px] font-semibold leading-snug text-ink">{f.text}</p>
+                    <p className="num text-[9.5px] text-sub">{f.time} · {f.src}</p>
+                  </div>
                 </div>
               ))}
             </div>
+            <Btn v="ghost" sz="xs" icon="history" className="mt-2" onClick={() => app.go("security")}>Open full audit log</Btn>
           </Card>
         </div>
       </div>

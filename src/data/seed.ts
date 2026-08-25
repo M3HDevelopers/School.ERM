@@ -599,7 +599,7 @@ const OWNER_AUDIT: AuditEntry[] = [
   { id: "oa10", time: new Date(Date.now() - 86400e3 * 13).toISOString(), operator: "System", action: "Blocked: cross-tenant query", target: "API token 0x88F2", reason: "Tenant isolation policy", outcome: "blocked", risk: "elevated" },
 ];
 
-const OPERATORS: Operator[] = [
+export const OPERATORS: Operator[] = [
   { id: "op1", name: "Hassan Raza", role: "Super Owner", email: "hassan@markaz.cloud", twoFA: true, status: "active", lastActive: new Date(Date.now() - 3600e3 * 1).toISOString() },
   { id: "op2", name: "Ayesha Siddiqui", role: "Sales Manager", email: "ayesha@markaz.cloud", twoFA: true, status: "active", lastActive: new Date(Date.now() - 3600e3 * 4).toISOString() },
   { id: "op3", name: "Kashif Niazi", role: "Finance Operator", email: "kashif@markaz.cloud", twoFA: true, status: "active", lastActive: new Date(Date.now() - 3600e3 * 6).toISOString() },
@@ -695,10 +695,10 @@ export function seedDB(): DB {
     services: SERVICES, jobs: JOBS, backups: BACKUPS, supportSessions: [],
     maintenanceMode: false,
     notifs: [
-      { id: "nf1", title: "3 challans overdue in 8-A", body: "Rs 13,600 pending — reminders can be sent from the Fees module.", time: new Date(Date.now() - 3600e3 * 2).toISOString(), read: false, icon: "cash", forRole: ["admin"] },
-      { id: "nf2", title: "Mid-term result published", body: "Your mid-term report card is now available.", time: new Date(Date.now() - 3600e3 * 20).toISOString(), read: false, icon: "exam", forRole: ["student", "parent"] },
-      { id: "nf3", title: "Monthly test marks pending", body: "12 of 14 students entered for Monthly Test — Grade 8-A.", time: new Date(Date.now() - 3600e3 * 5).toISOString(), read: false, icon: "exam", forRole: ["teacher", "admin"] },
-      { id: "nf4", title: "Route 3 vehicle document expired", body: "Fitness certificate for LEF-4520 expired 9 days ago.", time: new Date(Date.now() - 3600e3 * 26).toISOString(), read: true, icon: "bus", forRole: ["admin"] },
+      { id: "nf1", title: "Trial expiring — Hira Grammar School", body: "5 days remaining on the 14-day trial. The 3-day reminder workflow will fire automatically.", time: new Date(Date.now() - 3600e3 * 2).toISOString(), read: false, icon: "clock", forRole: ["owner"] },
+      { id: "nf2", title: "Invoice overdue — Falah Public School", body: "Rs 12,500 is 8 days past due. Account is in grace period per policy.", time: new Date(Date.now() - 3600e3 * 5).toISOString(), read: false, icon: "card", forRole: ["owner"] },
+      { id: "nf3", title: "Security — cross-tenant query blocked", body: "Read-only auditor attempted a tenant-data export outside scope. Request denied and logged.", time: new Date(Date.now() - 3600e3 * 9).toISOString(), read: false, icon: "shield", forRole: ["owner"] },
+      { id: "nf4", title: "Payment received — Ilm-o-Hikmah Academy", body: "Rs 25,000 recorded against INV-2026-101. License auto-extended to the next cycle.", time: new Date(Date.now() - 3600e3 * 26).toISOString(), read: true, icon: "cash", forRole: ["owner"] },
     ],
     schoolAudit: [
       { id: "sa1", time: new Date(Date.now() - 3600e3 * 4).toISOString(), user: "Kashif Mehmood", action: "Payment posted", detail: "RCP-11842 — Rs 4,800 (Ahmed Khan, 8-A)" },
