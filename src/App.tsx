@@ -15,6 +15,7 @@ import Operations from "./pages/Operations";
 import Comms from "./pages/Comms";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
+import DeveloperDashboard from "./pages/developer/Dashboard";
 
 function Screen() {
   const app = useApp();
@@ -36,6 +37,7 @@ function Screen() {
     comms: <Comms />,
     reports: <Reports />,
     settings: <Settings />,
+    "developer-dashboard": <DeveloperDashboard />,
   };
 
   return <AppShell>{pages[p] ?? <Dashboard />}</AppShell>;

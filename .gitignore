@@ -1,1 +1,7 @@
-Nothing should be ignored based on the provided file changes. The added files (`src/data/owner-mock.ts` and `src/types/owner.ts`) are TypeScript source files that should be tracked in version control.
+```
+# Dependencies
+node_modules/
+
+# Vite build artifacts
+node_modules/.vite/
+```

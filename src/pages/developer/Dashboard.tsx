@@ -1,6 +1,6 @@
 import React from "react";
 import { useApp } from "../../store";
-import { Card, StatCard, Badge, Button } from "../../components/ui";
+import { Card, StatCard, Badge } from "../../components/ui";
 
 export default function DeveloperDashboard() {
   const app = useApp();
@@ -24,7 +24,7 @@ export default function DeveloperDashboard() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Developer Dashboard</h1>
-        <Button onClick={() => app.go("developer-tenants")}>Manage Tenants</Button>
+        <button onClick={() => app.go("developer-tenants")} className="px-4 py-2 bg-primary text-side rounded-md hover:bg-primarydeep transition">Manage Tenants</button>
       </div>
 
       {/* Stats Grid */}
