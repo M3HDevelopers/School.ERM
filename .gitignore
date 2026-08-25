@@ -1,75 +1,27 @@
-```gitignore
-# Dependencies
-node_modules/
-
-# Build outputs
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
 dist/
 build/
 target/
 
-# Logs and temporary files
-*.log
-*.tmp
-
-# Environment variables
+# Dependencies
+node_modules/
+.venv/
+venv/
 .env
 .env.local
 *.env.*
 
-# Editor/IDE files
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
-
-# Python specific
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
-*.coverage
-.coverage.*
-!.coveragerc
-
-# Distribution / packaging
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.setup.py.swp
-
-# Testing
-.pytest_cache/
-.mypy_cache/
-.hypothesis/
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-Icon?
 ```
-
-Wait, let me reconsider. The added files are all TypeScript React files (.tsx) in a developer pages directory. There are no build artifacts, dependency directories, or temporary files in the change list. The current .gitignore appears to be empty.
-
-Since only source code files (.tsx) are being added without any build artifacts or dependencies, no additional ignores are needed.
-
-(empty — output nothing)
