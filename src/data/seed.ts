@@ -388,50 +388,58 @@ export function seedStudents(): Student[] {
       status: i === 17 ? "suspended" : i === 23 ? "transferred" : "active",
       admissionDate: `${2019 + (i % 6)}-04-${String((i % 26) + 2).padStart(2, "0")}`,
       feePlan: planFor(classId).label,
-      attendancePct: 82 + Math.round(rnd(i + 3) * 17),
-      docs: ["B-Form copy", "Birth certificate", "Previous report card", i % 3 === 0 ? "Transfer certificate" : "Photos (2)"],
+      attendancePct: clamp(82 + Math.round(rnd(i + 3) * 17) - (i % 9 === 4 ? 9 : 0), 68, 99),
+      docs: ["Photos (2)", "B-Form copy", i % 3 === 0 ? "Birth certificate" : "Previous report card"],
     };
   });
 }
-/* children of the demo parent (Muhammad Raza) */
-export const PARENT_CHILDREN = ["st-100", "st-114"];
-export const DEMO_STUDENT = "st-100";
+
+/* portal demo identities */
+export const DEMO_STUDENT = "st-100"; /* Ahmed Raza — Grade 8-A, Roll 1 */
+export const PARENT_CHILDREN = ["st-100", "st-114"]; /* Muhammad Raza's children */
 
 /* ---------------- staff ---------------- */
+const STAFF_ROWS: [string, "M" | "F", string, string, string[], string[], number, number][] = [
+  ["Dr. Kamran Siddiqui", "M", "Administration", "Principal", [], [], 250000, 40000],
+  ["Nusrat Jahan", "F", "Accounts", "Senior Accountant", [], [], 95000, 12000],
+  ["Salman Butt", "M", "Accounts", "Cashier", [], [], 55000, 8000],
+  ["Asma Jalil", "F", "Administration", "Admin Officer", [], [], 70000, 10000],
+  ["Rashid Minhas", "M", "Operations", "Inventory Incharge", [], [], 48000, 7000],
+  ["Tariq Mehmood", "M", "Academics", "Senior Teacher — Mathematics", ["mat"], ["Grade 8-A", "Grade 9-A"], 88000, 12000],
+  ["Nadia Hussain", "F", "Academics", "Teacher — Urdu", ["urd"], ["Grade 7-A", "Grade 8-A"], 72000, 10000],
+  ["Dr. Farah Zia", "F", "Academics", "Teacher — Science", ["sci"], ["Grade 8-A", "Grade 9-B"], 90000, 12000],
+  ["Hafiz Imran", "M", "Academics", "Teacher — Islamiat", ["isl"], ["Grade 6-A", "Grade 8-A"], 60000, 8000],
+  ["Saima Akhtar", "F", "Academics", "Class Teacher 8-A · English", ["eng"], ["Grade 8-A", "Grade 9-A"], 85000, 12000],
+  ["Adeel Shah", "M", "Academics", "Teacher — Social Studies", ["soc"], ["Grade 8-A", "Grade 10-A"], 68000, 9000],
+  ["Bilal Anwar", "M", "Academics", "Computer Lab Incharge", ["com"], ["Grade 5-A", "Grade 8-A"], 65000, 9000],
+  ["Sana Miraj", "F", "Academics", "Art Teacher", ["art"], ["Grade 1-A", "Grade 6-B"], 52000, 7000],
+  ["Shabana Perveen", "F", "Academics", "Primary Wing Head", ["eng"], ["Grade 1-A", "Grade 3-B"], 92000, 12000],
+  ["Akram Pervez", "M", "Transport", "Driver — Route 1", [], [], 42000, 5000],
+  ["Riaz Ahmed", "M", "Transport", "Driver — Route 2", [], [], 42000, 5000],
+  ["Manzoor Hussain", "M", "Transport", "Driver — Route 3", [], [], 42000, 5000],
+  ["Kausar Bibi", "F", "Support", "Library Assistant", [], [], 38000, 5000],
+  ["Javed Iqbal", "M", "Support", "Office Assistant", [], [], 35000, 5000],
+  ["Shazia Nawaz", "F", "Academics", "Coordinator — Middle School", ["sci"], ["Grade 6-B", "Grade 7-A"], 105000, 14000],
+];
+
 export function seedStaff(): Staff[] {
-  const rows: [string, "M" | "F", string, string, string[], string[], number][] = [
-    ["Saima Akhtar", "F", "Academics", "Senior Teacher · English", ["eng"], ["g8A", "g9A"], 95000],
-    ["Tariq Mehmood", "M", "Academics", "Teacher · Mathematics", ["mat"], ["g8A", "g8B", "g10A"], 88000],
-    ["Dr. Farah Zia", "F", "Academics", "Teacher · Science", ["sci"], ["g8A", "g7A"], 92000],
-    ["Nadia Hussain", "F", "Academics", "Teacher · Urdu", ["urd"], ["g8A", "g6B"], 78000],
-    ["Hafiz Imran Yousaf", "M", "Academics", "Teacher · Islamiat", ["isl"], ["g8A", "g5A"], 72000],
-    ["Adeel Shah", "M", "Academics", "Teacher · Social Studies", ["soc"], ["g8A", "g9B"], 76000],
-    ["Bilal Anwar", "M", "Academics", "Computer Lab Incharge", ["com"], ["g8A", "g9A", "g10A"], 82000],
-    ["Sana Miraj", "F", "Academics", "Art Teacher", ["art"], ["g1A", "g8A"], 60000],
-    ["Asma Jalil", "F", "Administration", "Vice Principal", [], ["g8A"], 140000],
-    ["Salman Butt", "M", "Accounts", "Accountant", [], [], 90000],
-    ["Nusrat Jahan", "F", "HR", "HR Officer", [], [], 75000],
-    ["Rashid Minhas", "M", "Operations", "Librarian", [], [], 55000],
-    ["Shaukat Ali", "M", "Operations", "Transport Incharge", [], [], 58000],
-    ["Farah Khan", "F", "Administration", "Receptionist", [], [], 45000],
-  ];
-  return rows.map(([name, gender, dept, designation, subjects, classes, salary], i) => ({
-    id: `sf-${10 + i}`,
-    empNo: `EMP-${101 + i}`,
-    name: name as string,
-    gender: gender as "M" | "F",
-    dept: dept as string,
-    designation: designation as string,
-    subjects: subjects as string[],
-    classes: classes as string[],
-    phone: `+92 3${["21", "33", "45"][i % 3]}-${String(3110000 + i * 24681).slice(0, 7)}`,
-    joined: `${2016 + (i % 7)}-0${(i % 8) + 1}-15`,
-    salary: salary as number,
-    allowance: Math.round((salary as number) * 0.12),
-    status: i === 7 ? "on-leave" : "active",
-    leaveC: 12 - (i % 5),
-    leaveA: 8 - (i % 4),
-    bank: ["HBL", "Meezan", "UBL", "Allied"][i % 4],
+  return STAFF_ROWS.map(([name, gender, dept, designation, subjects, classes, salary, allowance], i) => ({
+    id: `sf-${i + 1}`,
+    empNo: `EMP-${201 + i}`,
+    name,
+    gender,
+    dept,
+    designation,
+    subjects,
+    classes,
+    phone: `+92 3${["00", "21", "33", "45"][i % 4]}-${String(3110000 + i * 41777).slice(0, 7)}`,
+    joined: `${2015 + (i % 9)}-0${(i % 8) + 1}-1${i % 9}`,
+    salary,
+    allowance,
+    status: i === 13 ? "on-leave" : i === 18 ? "left" : "active",
+    leaveC: 4 + (i % 8),
+    leaveA: 2 + (i % 7),
+    bank: ["Meezan Bank", "HBL", "UBL", "Allied Bank"][i % 4],
   }));
 }
 
@@ -439,59 +447,58 @@ export function seedStaff(): Staff[] {
 export function seedFees(students: Student[]): { vouchers: Voucher[]; payments: Payment[] } {
   const vouchers: Voucher[] = [];
   const payments: Payment[] = [];
-  let rc = 900;
-  students.forEach((s, i) => {
-    const plan = planFor(s.classId);
-    const transport = i % 2 === 0 ? 800 : 0;
-    [-3, -2, -1, 0].forEach((off) => {
-      const mk = monthKey(off);
+  let rc = 1030;
+  [-2, -1, 0].forEach((off) => {
+    const month = monthKey(off);
+    students.forEach((st, si) => {
+      if (st.status !== "active") return;
+      const plan = planFor(st.classId);
       const items = [
         { label: "Tuition fee", amount: plan.tuition },
         { label: "Lab & activity", amount: 300 },
-        ...(transport ? [{ label: "Transport", amount: transport }] : []),
       ];
       const total = items.reduce((a, b) => a + b.amount, 0);
-      let status: VoucherStatus = "generated";
+      const lateFee = off < 0 && si % 7 === 3 ? 200 : off === 0 && st.attendancePct < 75 ? 0 : 0;
+      let status: VoucherStatus;
       let paid = 0;
-      if (off < 0) {
-        if (i % 7 === 3 && off === -1) { status = "overdue"; }
-        else if (i % 9 === 2 && off === -1) { status = "partial"; paid = Math.round(total / 2); }
-        else { status = "paid"; paid = total; }
+      if (off === 0) {
+        status = si % 3 === 0 ? "paid" : si % 3 === 1 ? "generated" : "partial";
+        paid = status === "paid" ? total : status === "partial" ? Math.round(total / 2) : 0;
       } else {
-        if (i % 3 === 0) { status = "paid"; paid = total; }
-        else if (i % 5 === 1) { status = "partial"; paid = Math.round(total / 2); }
-        else if (i % 11 === 4) { status = "waived"; paid = 0; }
+        status = si % 9 === 4 ? "overdue" : si % 11 === 5 ? "partial" : "paid";
+        paid = status === "paid" ? total + lateFee : status === "partial" ? Math.round((total + lateFee) * 0.6) : 0;
       }
+      const no = `CH-${month.slice(2).replace("-", "")}-${st.admNo.slice(4)}`;
       const v: Voucher = {
-        id: `v-${s.id}-${mk}`,
-        no: `CH-${mk.slice(2).replace("-", "")}-${s.admNo.slice(4)}`,
-        studentId: s.id,
-        month: mk,
+        id: `v-${st.id}-${month}`,
+        no,
+        studentId: st.id,
+        month,
         items,
         total,
-        lateFee: status === "overdue" ? 200 : 0,
+        lateFee,
         paid,
         status,
-        due: `${mk}-10`,
+        due: `${month}-10`,
       };
-      if (paid > 0 && status !== "waived") {
-        const rec = `RCP-${++rc}`;
-        v.receiptNo = status === "partial" ? undefined : rec;
+      if (paid > 0) {
+        const receiptNo = `RCP-${rc++}`;
+        if (status === "paid") v.receiptNo = receiptNo;
         payments.push({
-          id: `p-${v.id}`,
-          receiptNo: rec,
+          id: `p-${st.id}-${month}`,
+          receiptNo,
           voucherId: v.id,
-          studentId: s.id,
+          studentId: st.id,
           amount: paid,
-          method: (["cash", "bank", "online"] as const)[i % 3],
-          date: dateISO(off * 30 - 4),
-          cashier: "Salman Butt",
+          method: (["cash", "bank", "online"] as const)[si % 3],
+          date: dateISO(off * 28 + (si % 8) - 2),
+          cashier: ["Salman Butt", "Nusrat Jahan", "Rashid Minhas"][si % 3],
         });
       }
       vouchers.push(v);
     });
   });
-  return { vouchers, payments };
+  return { vouchers, payments: payments.reverse() };
 }
 
 /* ---------------- attendance ---------------- */

@@ -175,7 +175,7 @@ export default function Operations() {
           <Card className="xl:col-span-5">
             <h3 className="mb-2 font-display text-[15px] font-extrabold text-ink">Bookings & reminders</h3>
             {[["Main hall", "Iqbal Day assembly", S.dateISO(8)], ["Lab block", "Science fair setup", S.dateISO(14)], ["Sports ground", "Cricket final · houses", S.dateISO(11)]].map(([r, w, d]) => (
-              <div key={w as string} className="flex items-center gap-3 rounded-md border border-linesoft bg-paper px-3 py-2.5 mb-2">
+              <div key={w as string} className="mb-2 flex items-center gap-3 rounded-md border border-linesoft bg-paper px-3 py-2.5">
                 <I n="building" size={16} className="text-primary" />
                 <span className="flex-1"><span className="block text-[12.5px] font-bold text-ink">{r}</span><span className="text-[11px] text-sub">{w}</span></span>
                 <span className="num text-[11px] font-bold text-sub">{S.fmtDate(d as string)}</span>

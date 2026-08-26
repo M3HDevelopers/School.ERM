@@ -190,7 +190,7 @@ export function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
   return <textarea {...props} className={`${inputCls} min-h-[90px] ${props.className ?? ""}`} />;
 }
 export function Select({ children, ...rest }: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...rest} className={`${inputCls} appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2214%22%20height=%2214%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%235f7166%22%20stroke-width=%222%22><path%20d=%22m6%209%206%206%206-6%22/></svg>')] bg-[right_10px_center] bg-no-repeat pr-8 ${rest.className ?? ""}`}>{children}</select>;
+  return <select {...rest} className={`${inputCls} appearance-none bg-[url('image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2214%22%20height=%2214%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%235f7166%22%20stroke-width=%222%22><path%20d=%22m6%209%206%206%206-6%22/></svg>')] bg-[right_10px_center] bg-no-repeat pr-8 ${rest.className ?? ""}`}>{children}</select>;
 }
 
 export function Seg<T extends string>({ options, value, onChange, size = "md" }: { options: { id: T; label: string; tone?: string }[]; value: T; onChange: (v: T) => void; size?: "sm" | "md" }) {
@@ -213,35 +213,35 @@ export function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boo
       <span className={`relative h-[20px] w-[36px] rounded-full transition-colors ${on ? "bg-primary" : "bg-line"}`}>
         <span className={`absolute top-[2px] h-4 w-4 rounded-full bg-white shadow transition-all ${on ? "left-[18px]" : "left-[2px]"}`} />
       </span>
-      {label}
+      {label && <span>{label}</span>}
     </button>
-  );
-}
-
-/* ================= display ================= */
-const AV_COLORS = ["#0e6b4e", "#1e4e7c", "#8e2f3c", "#a3660a", "#0f6e7e", "#5b5ea6", "#7a4a8e", "#3d6b35"];
-export function Avatar({ name, size = 34, className = "" }: { name: string; size?: number; className?: string }) {
-  const init = name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-  const c = AV_COLORS[(name.charCodeAt(0) + (name.charCodeAt(1) || 0)) % AV_COLORS.length];
-  return (
-    <span className={`inline-flex shrink-0 items-center justify-center rounded-full font-display font-bold text-white ${className}`}
-      style={{ width: size, height: size, background: c, fontSize: size * 0.36 }}>
-      {init}
-    </span>
   );
 }
 
 export function Tabs({ tabs, value, onChange }: { tabs: { id: string; label: string; icon?: string }[]; value: string; onChange: (id: string) => void }) {
   return (
-    <div className="mb-4 flex flex-wrap gap-1 border-b border-line">
+    <div className="mb-4 flex flex-wrap gap-0.5 border-b border-line">
       {tabs.map((t) => (
         <button key={t.id} onClick={() => onChange(t.id)}
-          className={`relative -mb-px inline-flex items-center gap-1.5 rounded-t-md px-3.5 py-2 text-[13px] font-semibold transition ${value === t.id ? "border border-line border-b-card bg-card text-primarydeep" : "text-sub hover:text-ink"}`}>
-          {t.icon && <I n={t.icon} size={15} />}
+          className={`flex items-center gap-1.5 border-b-2 px-3.5 py-2.5 text-[13px] font-bold transition ${value === t.id ? "border-primary text-primarydeep" : "border-transparent text-sub hover:text-ink"}`}>
+          {t.icon && <I n={t.icon} size={14} />}
           {t.label}
         </button>
       ))}
     </div>
+  );
+}
+
+const AV_COLORS = ["#0e6b4e", "#1e4e7c", "#8e2f3c", "#0f6e7e", "#a3660a", "#5b5ea6"];
+export function Avatar({ name, size = 32, className = "" }: { name: string; size?: number; className?: string }) {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const initials = name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  return (
+    <span className={`inline-flex shrink-0 items-center justify-center rounded-full font-display font-extrabold text-white ${className}`}
+      style={{ width: size, height: size, background: AV_COLORS[h % AV_COLORS.length], fontSize: Math.round(size * 0.36) }}>
+      {initials}
+    </span>
   );
 }
 

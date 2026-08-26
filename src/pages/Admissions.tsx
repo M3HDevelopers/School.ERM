@@ -43,6 +43,7 @@ export default function Admissions() {
   const order: S.Stage[] = ["inquiry", "application", "test", "offer", "enrolled"];
   const stageIdx = (s: S.Stage) => order.indexOf(s);
   const converted = app.leads.filter((l) => l.stage === "enrolled").length;
+  void stageIdx;
 
   return (
     <>

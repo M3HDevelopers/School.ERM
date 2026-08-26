@@ -218,8 +218,24 @@ function TeacherDash() {
               </Card>
             );
           })}
-          <Card>
-            <h3 className="mb-2 font-display text-[15px] font-extrabold text-ink">Pending work</h3>
+          <Card pad={false}>
+            <div className="px-4 pt-4"><h3 className="font-display text-[15px] font-extrabold text-ink">Homework to review — 8-A</h3></div>
+            <div className="p-2 pb-3">
+              {app.homework.filter((h) => h.classId === "g8" && h.section === "A").slice(0, 4).map((h) => (
+                <div key={h.id} className="flex items-center gap-2.5 rounded-md px-2 py-2 transition hover:bg-linesoft">
+                  <Badge tone={h.done ? "ok" : "warn"}>{h.done ? "done" : `due ${S.fmtDate(h.due)}`}</Badge>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[12.5px] font-semibold text-ink">{h.title}</span>
+                    <span className="num text-[10.5px] text-sub">{S.subjectOf(h.subject).name}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+        <Card className="xl:col-span-3" pad={false}>
+          <div className="px-4 pt-4"><h3 className="font-display text-[15px] font-extrabold text-ink">To-do</h3></div>
+          <div className="p-2 pb-3">
             {[{ t: "Monthly Test marks — 8-A", s: "12 of 14 students entered", go: () => app.go("exams") }, { t: "Exercise 6.2 grading", s: "28 copies to check", go: () => app.go("exams") }, { t: "PTM preparation", s: "Saturday — parent slots", go: () => app.go("comms") }].map((w) => (
               <button key={w.t} onClick={w.go} className="group flex w-full items-center gap-2.5 rounded-md px-1.5 py-2 text-left transition hover:bg-primarysoft/70">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -227,8 +243,8 @@ function TeacherDash() {
                 <I n="chevR" size={14} className="text-sub opacity-0 transition group-hover:opacity-100" />
               </button>
             ))}
-          </Card>
-        </div>
+          </div>
+        </Card>
         <Card className="xl:col-span-3" pad={false}>
           <div className="px-4 pt-4"><h3 className="font-display text-[15px] font-extrabold text-ink">Announcements</h3></div>
           <div className="mt-2 space-y-2 p-3 pb-4">
@@ -306,7 +322,7 @@ function StudentDash() {
             <div className="p-2 pb-3">
               {hw.map((h) => (
                 <button key={h.id} onClick={() => app.toggleHomework(h.id)} className="group flex w-full items-start gap-2.5 rounded-md px-2 py-1.5 text-left transition hover:bg-linesoft">
-                  <span className={`mt-0.5 flex h-4.5 w-4.5 h-[18px] w-[18px] shrink-0 items-center justify-center rounded border transition ${h.done ? "border-primary bg-primary text-white" : "border-line bg-card group-hover:border-primary"}`}>
+                  <span className={`mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border transition ${h.done ? "border-primary bg-primary text-white" : "border-line bg-card group-hover:border-primary"}`}>
                     {h.done && <I n="check" size={11} />}
                   </span>
                   <span className="min-w-0">

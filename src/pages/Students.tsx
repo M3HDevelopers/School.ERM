@@ -192,8 +192,7 @@ function StudentDrawer({ id, onClose }: { id: string | null; onClose: () => void
         <div className="flex flex-wrap items-center gap-2 border-t border-line pt-4">
           <Field label="Change status" className="w-44">
             <Select value={s.status} onChange={(e) => app.updateStudent(s.id, { status: e.target.value as S.Student["status"] }, "Status changed")}>
-              <option value="active">Active</option><option value="suspended">Suspended</option>
-              <option value="transferred">Transferred</option><option value="withdrawn">Withdrawn</option>
+              <option value="active">Active</option><option value="suspended">Suspended</option><option value="transferred">Transferred</option><option value="withdrawn">Withdrawn</option>
             </Select>
           </Field>
           <Btn v="soft" icon="cash" onClick={() => { onClose(); app.go("fees", { student: s.id }); }}>Fee ledger</Btn>
