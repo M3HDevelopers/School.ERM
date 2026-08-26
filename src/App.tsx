@@ -15,6 +15,7 @@ import Operations from "./pages/Operations";
 import Comms from "./pages/Comms";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
+import OwnerRoot from "./owner";
 
 function Screen() {
   const app = useApp();
@@ -22,6 +23,7 @@ function Screen() {
 
   if (p === "site") return <PublicSite />;
   if (p === "login" || !app.session) return <Login />;
+  if (app.session.role === "owner") return <OwnerRoot />;
 
   const pages: Record<string, React.ReactNode> = {
     dashboard: <Dashboard />,

@@ -32,6 +32,7 @@ const NAV: Record<S.Role, { group: string; items: NavItem[] }[]> = {
     { group: "Family", items: [{ id: "dashboard", label: "Parent Dashboard", icon: "grid" }, { id: "fees", label: "Fees & Receipts", icon: "cash" }, { id: "attendance", label: "Attendance", icon: "check" }, { id: "exams", label: "Results", icon: "doc" }] },
     { group: "School", items: [{ id: "comms", label: "Announcements", icon: "send" }] },
   ],
+  owner: [],
 };
 const LABELS: Record<string, string> = {
   dashboard: "Dashboard", students: "Students", admissions: "Admissions", attendance: "Attendance",

@@ -3,7 +3,7 @@
    Deterministic seed so demos look identical on every load.
    ============================================================ */
 
-export type Role = "admin" | "teacher" | "student" | "parent";
+export type Role = "admin" | "teacher" | "student" | "parent" | "owner";
 export type AttMark = "P" | "A" | "L";
 export type VoucherStatus = "paid" | "partial" | "overdue" | "generated" | "waived";
 export type Stage = "inquiry" | "application" | "test" | "offer" | "enrolled";
@@ -291,6 +291,7 @@ export const CREDENTIALS: Record<Role, { u: string; p: string; name: string; tit
   teacher: { u: "saima.akhtar", p: "teach123", name: "Saima Akhtar", title: "Class Teacher · 8-A" },
   student: { u: "ahmed.raza", p: "stud123", name: "Ahmed Raza", title: "Grade 8-A · Roll 1" },
   parent: { u: "m.raza", p: "parent123", name: "Muhammad Raza", title: "Parent of 2" },
+  owner: { u: "super.owner", p: "markaz-ops", name: "Hassan Raza", title: "Super Owner · Markaz Cloud" },
 };
 
 /* ---------------- academic structure ---------------- */
